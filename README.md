@@ -1,5 +1,5 @@
 # pirate-software-game-jam-14
-Submission for Pirate Software's Game Jam 14
+My submission for [Pirate Software's Game Jam 14](https://itch.io/jam/pirate).
 
 You can play the game here:
 
