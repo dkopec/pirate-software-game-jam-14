@@ -17,3 +17,11 @@ You can download godot from [the official github](https://github.com/godotengine
 [Release v0.1.4](https://github.com/dkopec/pirate-software-game-jam-14/tree/v0.1.4) is a very basic project that can be used a template for your own.
 
 I've added some basic guidlines how to develop in the [Contributing Document](./CONTRIBUTING.md). You can use this as a base form your own but keep in mind the automation for releases uses the Conventional Commits.
+
+### CICD
+The CICD requires you to create a github repo secret (```https://github.com/<your user name>/<project id>/settings/secrets/actions/new```) called ITCHIO_BUTLER_API which you can get from https://itch.io/user/settings/api-keys and generate one.
+
+It also needs you to create github repo variables (```https://github.com/<your user name>/<project id>/settings/variables/actions/new```):
+
+- ITCHIO_BUTLER_GAME which is the id of the game project on itch.io
+- ITCHIO_BUTLER_USER which is your user name on itch.io
