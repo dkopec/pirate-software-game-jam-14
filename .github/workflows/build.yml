@@ -10,7 +10,7 @@ env:
   GODOT_VERSION: "3.5.3"
   RELEASE_NAME: "stable"
   GODOT_PLATFORM: "linux_headless.64"
-  WORKING_DIRECTORY: "./src"
+  WORKING_DIRECTORY: "./src/"
 
 jobs:
   # job id, can be anything
@@ -93,10 +93,9 @@ jobs:
 
     - name: Deploy to GitHub Pages 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v4
-      working-directory: ${{ env.WORKING_DIRECTORY }}
       with:
         branch: gh-pages # The branch the action should deploy to.
-        folder: build/web # The folder the action should deploy.
+        folder: "${{ env.WORKING_DIRECTORY }}build/web" # The folder the action should deploy.
 
     - name: 🤖 Setup Itch.io Butler
       run: |
