@@ -10,7 +10,7 @@ env:
   GODOT_VERSION: "3.5.3"
   RELEASE_NAME: "stable"
   GODOT_PLATFORM: "linux_headless.64"
-  WORKING_DIRECTORY: "src/"
+  WORKING_DIRECTORY: "./src/"
 
 jobs:
   # job id, can be anything
@@ -62,7 +62,7 @@ jobs:
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
         GODOT_EXPORT_VERSION: "${{ steps.tag_version.outputs.new_tag }}"
-        GODOT_EXPORT_DIR: "${{ env.WORKING_DIRECTORY }}build"
+        GODOT_EXPORT_DIR: "build"
       run: |
         mkdir -v -p $GODOT_EXPORT_DIR/web $GODOT_EXPORT_DIR/windows
         ls -lsa
@@ -70,14 +70,16 @@ jobs:
         godot --export "HTML5" "$GODOT_EXPORT_DIR/web/index.html"
         ls -lsa $GODOT_EXPORT_DIR/web
         zip  -rj "$GODOT_EXPORT_DIR/ferret_rescure_${GODOT_EXPORT_VERSION}_web.zip" "$GODOT_EXPORT_DIR/web"
-        echo "zip_web=${GODOT_EXPORT_DIR}/ferret_rescure_${GODOT_EXPORT_VERSION}_web.zip" >> $GITHUB_OUTPUT
 
         godot --export "Windows Desktop" "$GODOT_EXPORT_DIR/windows/ferret_rescue.exe"
         ls -lsa $GODOT_EXPORT_DIR/windows
         zip  -rj "$GODOT_EXPORT_DIR/ferret_rescure_${GODOT_EXPORT_VERSION}_windows.zip" "$GODOT_EXPORT_DIR/windows"
-        echo "zip_windows=${GODOT_EXPORT_DIR}/ferret_rescure_${GODOT_EXPORT_VERSION}_windows.zip" >> $GITHUB_OUTPUT
 
-        echo "archive_directory=$GODOT_EXPORT_DIR" >> $GITHUB_OUTPUT
+        export REALEASE_PATH="${PWD}/${GODOT_EXPORT_DIR}"
+
+        echo "zip_web=${REALEASE_PATH}/ferret_rescure_${GODOT_EXPORT_VERSION}_web.zip" >> $GITHUB_OUTPUT
+        echo "zip_windows=${REALEASE_PATH}/ferret_rescure_${GODOT_EXPORT_VERSION}_windows.zip" >> $GITHUB_OUTPUT
+        echo "archive_directory=$REALEASE_PATH" >> $GITHUB_OUTPUT
 
       # This release action has worked well for me. However, you can most likely use any release action of your choosing.
       # https://github.com/ncipollo/release-action
