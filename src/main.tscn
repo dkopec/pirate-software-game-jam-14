@@ -1,3 +1,14 @@
-[gd_scene format=2]
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [  ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
 
 [node name="Node2D" type="Node2D"]
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+frames = SubResource( 1 )
