@@ -1,6 +1,9 @@
-[gd_scene format=2]
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://main.gd" type="Script" id=1]
 
 [node name="Node2D" type="Node2D"]
+script = ExtResource( 1 )
 
 [node name="ColorRect" type="ColorRect" parent="."]
 margin_right = 640.0
@@ -18,8 +21,10 @@ text = "Game Title"
 align = 1
 valign = 1
 
-[node name="Button" type="Button" parent="VBoxContainer"]
+[node name="PlayButton" type="Button" parent="VBoxContainer"]
 margin_top = 18.0
 margin_right = 640.0
 margin_bottom = 38.0
 text = "Play"
+
+[connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_PlayButton_pressed"]
