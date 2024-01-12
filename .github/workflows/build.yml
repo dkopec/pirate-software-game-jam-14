@@ -10,7 +10,7 @@ env:
   GODOT_VERSION: "3.5.3"
   RELEASE_NAME: "stable"
   GODOT_PLATFORM: "linux_headless.64"
-  WORKING_DIRECTORY: "./src/"
+  WORKING_DIRECTORY: "src/"
 
 jobs:
   # job id, can be anything
