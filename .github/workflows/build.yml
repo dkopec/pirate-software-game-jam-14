@@ -62,7 +62,7 @@ jobs:
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
         GODOT_EXPORT_VERSION: "${{ steps.tag_version.outputs.new_tag }}"
-        GODOT_EXPORT_DIR: "build"
+        GODOT_EXPORT_DIR: "${{ env.WORKING_DIRECTORY }}build"
       run: |
         mkdir -v -p $GODOT_EXPORT_DIR/web $GODOT_EXPORT_DIR/windows
         ls -lsa
