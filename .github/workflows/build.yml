@@ -1,0 +1,122 @@
+name: Build Godot Project
+
+# Whenever a tag push matching pattern "v*" then run the job
+on:
+  push:
+    # tags:
+    #   - "v*"
+
+env:
+  GODOT_VERSION: "3.5.3"
+  RELEASE_NAME: "stable"
+  GODOT_PLATFORM: "linux_headless.64"
+
+jobs:
+  # job id, can be anything
+  export_game:
+    # Always use ubuntu-latest for this action
+    runs-on: ubuntu-latest
+    # Add permission for release creation. Can be made narrower according to your needs
+    permissions: write-all
+    # Job name, can be anything
+    name: Export Game
+    steps:
+      # Always include the checkout step so that
+      # your project is available for Godot to export
+    - name: checkout
+      uses: actions/checkout@v3.3.0
+
+    - name: Bump version and push tag
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🤖 Setup Godot
+      run: |
+        #https://github.com/godotengine/godot-builds/releases/download/3.5.3-stable/Godot_v3.5.3-stable_x11.64.zip
+        #https://github.com/godotengine/godot-builds/releases/download/3.5.3-stable/Godot_v3.5.3-stable_linux_headless.64.zip
+        echo "Download Bineries and Templates"
+        wget -nv https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${RELEASE_NAME}/Godot_v${GODOT_VERSION}-${RELEASE_NAME}_${GODOT_PLATFORM}.zip
+        wget -nv https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${RELEASE_NAME}/Godot_v${GODOT_VERSION}-${RELEASE_NAME}_export_templates.tpz
+        echo "Done"
+        echo "Make and link Directories"
+        mkdir -v ~/.cache
+        mkdir -v -p ~/.config/godot
+        mkdir -v -p ~/.local/share/godot/templates/${GODOT_VERSION}.${RELEASE_NAME}
+        mkdir -v -p ~/.local/share/godot/export_templates
+        ln -s ~/.local/share/godot/templates ~/.local/share/godot/export_templates
+        echo "Done"
+        echo "Extract and install Binaries and Templates"
+        unzip Godot_v${GODOT_VERSION}-${RELEASE_NAME}_${GODOT_PLATFORM}.zip
+        mv -v Godot_v${GODOT_VERSION}-${RELEASE_NAME}_${GODOT_PLATFORM} /usr/local/bin/godot
+        unzip Godot_v${GODOT_VERSION}-${RELEASE_NAME}_export_templates.tpz
+        mv -v templates/* ~/.local/share/godot/templates/${GODOT_VERSION}.${RELEASE_NAME}
+        echo "Cleanup"
+        rm -f Godot_v${GODOT_VERSION}-${RELEASE_NAME}_export_templates.tpz Godot_v${GODOT_VERSION}-${RELEASE_NAME}_${GODOT_PLATFORM}.zip
+        echo "Done"
+
+    - name: ⚙ Export Game
+      id: export
+      env:
+        GODOT_EXPORT_VERSION: "${{ steps.tag_version.outputs.new_tag }}"
+        GODOT_EXPORT_DIR: "build"
+      run: |
+        mkdir -v -p $GODOT_EXPORT_DIR/web $GODOT_EXPORT_DIR/windows
+        ls -lsa
+
+        godot --export "HTML5" "$GODOT_EXPORT_DIR/web/index.html"
+        ls -lsa $GODOT_EXPORT_DIR/web
+        zip  -rj "$GODOT_EXPORT_DIR/ferret_rescure_${GODOT_EXPORT_VERSION}_web.zip" "$GODOT_EXPORT_DIR/web"
+        echo "zip_web=${GODOT_EXPORT_DIR}/ferret_rescure_${GODOT_EXPORT_VERSION}_web.zip" >> $GITHUB_OUTPUT
+
+        godot --export "Windows Desktop" "$GODOT_EXPORT_DIR/windows/ferret_rescue.exe"
+        ls -lsa $GODOT_EXPORT_DIR/windows
+        zip  -rj "$GODOT_EXPORT_DIR/ferret_rescure_${GODOT_EXPORT_VERSION}_windows.zip" "$GODOT_EXPORT_DIR/windows"
+        echo "zip_windows=${GODOT_EXPORT_DIR}/ferret_rescure_${GODOT_EXPORT_VERSION}_windows.zip" >> $GITHUB_OUTPUT
+
+        echo "archive_directory=$GODOT_EXPORT_DIR" >> $GITHUB_OUTPUT
+
+      # This release action has worked well for me. However, you can most likely use any release action of your choosing.
+      # https://github.com/ncipollo/release-action
+    - name: 🏁 Create Release
+      uses: ncipollo/release-action@v1.12.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: Release ${{ steps.tag_version.outputs.new_tag }}
+        body: ${{ steps.tag_version.outputs.changelog }}
+        generateReleaseNotes: true
+        tag: ${{ steps.tag_version.outputs.new_tag }}
+        artifacts: ${{ steps.export.outputs.archive_directory }}/*.zip
+
+    - name: Deploy to GitHub Pages 🚀
+      uses: JamesIves/github-pages-deploy-action@releases/v4
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+        folder: build/web # The folder the action should deploy.
+
+    - name: 🤖 Setup Itch.io Butler
+      run: |
+        echo "Download Binerie"
+        wget -O butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+        echo "Done"
+        echo "Extract and install Binaries and Templates"
+        unzip butler.zip -d /usr/local/bin/
+        echo "Cleanup"
+        rm -f butler.zip
+        echo "Done"
+
+    - name: ⬆ Release to Itcho.io
+      id: release_to_itch
+      env:
+        GAME_VERSION: "${{ steps.tag_version.outputs.new_tag }}"
+        GAME_EXPORT_DIR: ${{ steps.export.outputs.archive_directory }}
+        GAME_WEB: ${{ steps.export.outputs.zip_web }}
+        GAME_WINDOWS: ${{ steps.export.outputs.zip_windows }}
+        BUTLER_API_KEY: ${{ secrets.ITCHIO_BUTLER_API }}
+        BUTLER_USER: ${{ vars.ITCHIO_BUTLER_USER }}
+        BUTLER_GAME: ${{ vars.ITCHIO_BUTLER_GAME }}
+      run: |
+        butler push $GAME_WEB "${BUTLER_USER}/${BUTLER_GAME}:html5" --userversion "$GAME_VERSION"
+        butler push $GAME_WINDOWS "${BUTLER_USER}/${BUTLER_GAME}:windows" --userversion "$GAME_VERSION"
+
