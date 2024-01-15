@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="pirate-software-game-jam-14-submission"
-run/main_scene="res://level.tscn"
+run/main_scene="res://Game.tscn"
 config/icon="res://icon.png"
 
 [display]

@@ -7,6 +7,8 @@ onready var random = RandomNumberGenerator.new()
 
 func _ready():
 	print_debug("Level Ready")
+	if(OS.is_debug_build()):
+		$Timer.wait_time = 1
 
 func _input(event):
 	if start_game and (event is InputEventMouseButton or event is InputEventScreenTouch):
@@ -23,21 +25,19 @@ func _input(event):
 		print_debug("Tile Clicked! Changed Tile ID from", current_tile_id, "to", new_tile_id, "at Coordinates:", tile_coordinates)
 
 func get_neighbors(tile: Vector2):
-	var x = tile.x
-	var y = tile.y
-	return [
-		Vector2(x - 1, y),  # Left
-		Vector2(x + 1, y),  # Right
-		Vector2(x, y - 1),  # Up
-		Vector2(x, y + 1)   # Down
-	]
+	return PoolVector2Array([
+		tile + Vector2.RIGHT,
+		tile + Vector2.LEFT,
+		tile + Vector2.DOWN,
+		tile + Vector2.UP,
+	])
 
 func _on_Timer_timeout():
-	var victims = []
+	var victims = PoolVector2Array([])
 	for action_tile in $TileMap.get_used_cells_by_id(action_tile_id):
 		print_debug("Action Tile", action_tile)
 		var neighbors = get_neighbors(action_tile)
-		var targets = []
+		var targets = PoolVector2Array([])
 		for neighbor in neighbors:
 			var neighbor_id = $TileMap.get_cellv(neighbor)
 			if neighbor_id != action_tile_id and neighbor_id != -1:
@@ -51,13 +51,20 @@ func _on_Timer_timeout():
 			var victim = targets[victim_index]
 			print_debug("The Victim is ", victim)
 			$TileMap.set_cellv(victim, action_tile_id)
-			victims.append(victims)
+			victims.append(victim)
 	if (victims.size() == 0):
 		print_debug("No more victims left, player wins.")
-		$Timer.paused = true
+		$Timer.stop()
 		$WinMessage.visible = true
+		start_game = false
+		$VBoxContainer/Reset.visible = true
+		
 
 func _on_PlayButton_pressed():
 	$Timer.start()
 	$VBoxContainer/PlayButton.visible = false
 	start_game = true
+
+
+func _on_Reset_pressed():
+	var _reset = get_tree().reload_current_scene()
