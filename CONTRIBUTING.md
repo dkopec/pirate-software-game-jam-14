@@ -110,3 +110,43 @@ obsolete now.
 Reviewed-by: Z
 Refs: #123
 ```
+
+## Naming / Formatting Convention
+
+This project follows the [Godot gdscript styleguide for formatting and naming](https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_styleguide.html)
+
+### Summary
+
+#### Naming Conventions
+| Type         | Convention    | Info                               |
+| ------------ | ------------- | ---------------------------------- |
+| File names   | snake_case    | yaml_parsed.gd                     |
+| class_name   | PascalCase    | YAMLParser                         |
+| Node names   | PascalCase    |
+| Functions    | snake_case    |
+| Variables    | snake_case    |
+| Signals      | snake_case    | always in past tense "door_opened" |
+| Constants    | CONSTANT_CASE |
+| enum names   | PascalCase    |
+| enum members | CONSTANT_CASE |
+
+*Prepend a single underscore (_) to virtual methods functions the user must override, private functions, and private variables:
+
+#### Code Order
+
+1. tool
+1. class_name
+1. extends
+1. \# docstring
+1. signals
+1. enums
+1. constants
+1. exported variables
+1. public variables
+1. private variables
+1. onready variables
+1. optional built-in virtual _init method
+1. built-in virtual _ready method
+1. remaining built-in virtual methods
+1. public methods
+1. private methods
