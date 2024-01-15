@@ -58,7 +58,7 @@ func _on_Timer_timeout():
 		$WinMessage.visible = true
 		start_game = false
 		$VBoxContainer/Reset.visible = true
-		
+
 
 func _on_PlayButton_pressed():
 	$Timer.start()

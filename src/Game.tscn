@@ -2,7 +2,7 @@
 
 [ext_resource path="res://character.png" type="Texture" id=1]
 [ext_resource path="res://pathfinding.gd" type="Script" id=2]
-[ext_resource path="res://Game.gd" type="Script" id=3]
+[ext_resource path="res://game.gd" type="Script" id=3]
 [ext_resource path="res://character.gd" type="Script" id=4]
 [ext_resource path="res://tileset_levels.tres" type="TileSet" id=5]
 
