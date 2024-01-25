@@ -36,10 +36,8 @@ func _process(_delta):
 
 func _unhandled_input(event):
 	if event.is_action("click"):
-		var global_mouse_pos = get_global_mouse_position()
 		_target_position = get_global_mouse_position()
 		_change_state(States.FOLLOW)
-		get_process_delta_time()
 		var current_time = OS.get_ticks_msec() / 1000.0
 		if (current_time - last_click_time) < double_click_threshold:
 			print_debug("Double click detected!")
