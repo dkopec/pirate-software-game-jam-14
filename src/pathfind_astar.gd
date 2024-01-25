@@ -3,11 +3,10 @@ extends TileMap
 const BASE_LINE_WIDTH = 3.0
 const DRAW_COLOR = Color.white
 
-enum  TileType {
-	OBSTICLE = 0,
-	START = 1,
-	END = 2,
-	CREEP = 3
+var type = {
+	OBSTICLE= tile_set.find_tile_by_name("Obstacle"),
+	CREEP = tile_set.find_tile_by_name("Creep"),
+	GROUND = tile_set.find_tile_by_name("Ground")
 }
 
 # The Tilemap node doesn't have clear bounds so we're defining the map's limits here.
@@ -26,7 +25,7 @@ var _point_path = []
 onready var astar_node = AStar.new()
 # get_used_cells_by_id is a method from the TileMap node.
 # Here the id 0 corresponds to the grey tile, the obstacles.
-onready var obstacles = get_used_cells_by_id(TileType.OBSTICLE)
+onready var obstacles = get_used_cells_by_id(type.OBSTICLE)
 onready var _half_cell_size = cell_size / 2
 
 
@@ -131,20 +130,25 @@ func _recalculate_path():
 
 func _is_valid_tile(cell:Vector2):
 	if cell in obstacles:
-		return
+		return false
 	if is_outside_map_bounds(cell):
-		return
-	return cell
+		return false
+	return true
+
+func _get_valid_tile(cell:Vector2):
+	if _is_valid_tile(cell):
+		return cell
+	return
 
 # Setters for the start and end path values.
 func _set_path_start_position(value):
-	path_start_position = _is_valid_tile(value)
+	path_start_position = _get_valid_tile(value)
 	if path_end_position and path_end_position != path_start_position:
 		_recalculate_path()
 
 
 func _set_path_end_position(value):
-	path_end_position = _is_valid_tile(value)
+	path_end_position = _get_valid_tile(value)
 	if path_start_position != value:
 		_recalculate_path()
 
@@ -176,3 +180,14 @@ func _get_tile_neighbors(cell:Vector2):
 		cell + Vector2.UP,
 	])
 	return tile_neighbors
+	
+func infect_neighbors(point:Vector2):
+	var tile_map_position = world_to_map(point)
+	var neighbors = _get_tile_neighbors(tile_map_position)
+	neighbors.append(tile_map_position)
+	print_debug("Spreading Creep")
+	for neighbor in neighbors:
+		var is_valid = _is_valid_tile(neighbor) 
+		var is_creep = get_cellv(neighbor) == type.CREEP
+		if is_valid and not is_creep:
+			set_cellv(neighbor, type.CREEP)
