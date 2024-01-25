@@ -3,45 +3,37 @@ extends TileMap
 const BASE_LINE_WIDTH = 3.0
 const DRAW_COLOR = Color.white
 
+enum  TileType {
+	OBSTICLE = 0,
+	START = 1,
+	END = 2,
+	CREEP = 3
+}
+
 # The Tilemap node doesn't have clear bounds so we're defining the map's limits here.
 export(Vector2) var map_size = Vector2.ONE * 16
 
 # The path start and end variables use setter methods.
 # You can find them at the bottom of the script.
-var path_start_position = Vector2() setget _set_path_start_position
-var path_end_position = Vector2() setget _set_path_end_position
+onready var character_position = world_to_map(get_parent().get_node("Character").position)
+onready var path_start_position = Vector2(character_position) setget _set_path_start_position
+onready var path_end_position = Vector2(character_position) setget _set_path_end_position
 
 var _point_path = []
+
 
 # You can only create an AStar node from code, not from the Scene tab.
 onready var astar_node = AStar.new()
 # get_used_cells_by_id is a method from the TileMap node.
 # Here the id 0 corresponds to the grey tile, the obstacles.
-onready var obstacles = get_used_cells_by_id(0)
+onready var obstacles = get_used_cells_by_id(TileType.OBSTICLE)
 onready var _half_cell_size = cell_size / 2
 
 
 func _ready():
+	print_debug("Tilemap script ready.")
 	var walkable_cells_list = astar_add_walkable_cells(obstacles)
-	astar_connect_walkable_cells(walkable_cells_list)
-
-
-func _draw():
-	if not _point_path:
-		return
-	var point_start = _point_path[0]
-	var point_end = _point_path[len(_point_path) - 1]
-
-	set_cell(point_start.x, point_start.y, 1)
-	set_cell(point_end.x, point_end.y, 2)
-
-	var last_point = map_to_world(Vector2(point_start.x, point_start.y)) + _half_cell_size
-	for index in range(1, len(_point_path)):
-		var current_point = map_to_world(Vector2(_point_path[index].x, _point_path[index].y)) + _half_cell_size
-		draw_line(last_point, current_point, DRAW_COLOR, BASE_LINE_WIDTH, true)
-		draw_circle(current_point, BASE_LINE_WIDTH * 2.0, DRAW_COLOR)
-		last_point = current_point
-
+	astar_connect_walkable_cells_diagonal(walkable_cells_list)
 
 # Loops through all cells within the map's bounds and
 # adds all points to the astar_node, except the obstacles.
@@ -113,16 +105,6 @@ func astar_connect_walkable_cells_diagonal(points_array):
 func calculate_point_index(point):
 	return point.x + map_size.x * point.y
 
-
-func clear_previous_path_drawing():
-	if not _point_path:
-		return
-	var point_start = _point_path[0]
-	var point_end = _point_path[len(_point_path) - 1]
-	set_cell(point_start.x, point_start.y, -1)
-	set_cell(point_end.x, point_end.y, -1)
-
-
 func is_outside_map_bounds(point):
 	return point.x < 0 or point.y < 0 or point.x >= map_size.x or point.y >= map_size.y
 
@@ -139,7 +121,6 @@ func get_astar_path(world_start, world_end):
 
 
 func _recalculate_path():
-	clear_previous_path_drawing()
 	var start_point_index = calculate_point_index(path_start_position)
 	var end_point_index = calculate_point_index(path_end_position)
 	# This method gives us an array of points. Note you need the start and
@@ -148,29 +129,50 @@ func _recalculate_path():
 	# Redraw the lines and circles from the start to the end point.
 	update()
 
+func _is_valid_tile(cell:Vector2):
+	if cell in obstacles:
+		return
+	if is_outside_map_bounds(cell):
+		return
+	return cell
 
 # Setters for the start and end path values.
 func _set_path_start_position(value):
-	if value in obstacles:
-		return
-	if is_outside_map_bounds(value):
-		return
-
-	set_cell(path_start_position.x, path_start_position.y, -1)
-	set_cell(value.x, value.y, 1)
-	path_start_position = value
+	path_start_position = _is_valid_tile(value)
 	if path_end_position and path_end_position != path_start_position:
 		_recalculate_path()
 
 
 func _set_path_end_position(value):
-	if value in obstacles:
-		return
-	if is_outside_map_bounds(value):
-		return
-
-	set_cell(path_start_position.x, path_start_position.y, -1)
-	set_cell(value.x, value.y, 2)
-	path_end_position = value
+	path_end_position = _is_valid_tile(value)
 	if path_start_position != value:
 		_recalculate_path()
+
+func get_tile_center(point:Vector2):
+	var tile_map_position = world_to_map(point)
+	var center_of_tile = _get_tile_center(tile_map_position)
+	return center_of_tile
+
+func _get_tile_center(cell:Vector2):
+	var tile_world_position = map_to_world(cell)
+	var center_of_tile = tile_world_position + _half_cell_size
+	return center_of_tile
+	
+func get_tile_neighbors(point:Vector2):
+	var tile_map_position = world_to_map(point)
+	var tile_neighbors = PoolVector2Array([
+		_get_tile_center(tile_map_position + Vector2.RIGHT),
+		_get_tile_center(tile_map_position + Vector2.LEFT),
+		_get_tile_center(tile_map_position + Vector2.DOWN),
+		_get_tile_center(tile_map_position + Vector2.UP),
+	])
+	return tile_neighbors
+
+func _get_tile_neighbors(cell:Vector2):
+	var tile_neighbors = PoolVector2Array([
+		cell + Vector2.RIGHT,
+		cell + Vector2.LEFT,
+		cell + Vector2.DOWN,
+		cell + Vector2.UP,
+	])
+	return tile_neighbors
