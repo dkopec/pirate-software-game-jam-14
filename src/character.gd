@@ -47,6 +47,7 @@ func _process(_delta):
 
 func _unhandled_input(event):
 	if event.is_action("click"):
+		get_parent().get_node("StartMessage").visible = false
 		_target_position = get_global_mouse_position()
 		_change_state(States.FOLLOW)
 		_spawn_creeper = true
