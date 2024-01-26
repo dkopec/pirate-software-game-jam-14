@@ -1,5 +1,7 @@
 # Spread Game Design Document
 
+![Spread Cover Image](./docs/img/cover.png))
+
 By Dominik Kopec
 
 For my submission to the 2024 [Pirate Software Game Jam 14](https://itch.io/jam/pirate).
