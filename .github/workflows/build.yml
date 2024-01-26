@@ -64,6 +64,7 @@ jobs:
         GODOT_EXPORT_VERSION: "${{ steps.tag_version.outputs.new_tag }}"
         GODOT_EXPORT_DIR: "build"
         GITHUB_PROJECT_NAME: "${{ github.event.repository.name }}"
+        GITHUB_CHECKOUT_DIR: ${{ github.workspace }}
       run: |
         export PROJECT_NAME=${GITHUB_PROJECT_NAME//-/_}
         mkdir -v -p $GODOT_EXPORT_DIR/web $GODOT_EXPORT_DIR/windows
@@ -74,6 +75,7 @@ jobs:
         zip  -rj "$GODOT_EXPORT_DIR/${PROJECT_NAME}_${GODOT_EXPORT_VERSION}_web.zip" "$GODOT_EXPORT_DIR/web"
 
         godot --export "Windows Desktop" "$GODOT_EXPORT_DIR/windows/${PROJECT_NAME}.exe"
+        cp $GITHUB_CHECKOUT_DIR/GAMEDESIGNDOC.md $GODOT_EXPORT_DIR/windows/GAMEDESIGNDOC.md
         ls -lsa $GODOT_EXPORT_DIR/windows
         zip  -rj "$GODOT_EXPORT_DIR/${PROJECT_NAME}_${GODOT_EXPORT_VERSION}_windows.zip" "$GODOT_EXPORT_DIR/windows"
 
