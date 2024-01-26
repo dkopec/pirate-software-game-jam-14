@@ -29,8 +29,15 @@ z_index = 1
 [node name="PowerUp" parent="." instance=ExtResource( 4 )]
 position = Vector2( 1779, 140 )
 
-[node name="WinMessage" type="Label" parent="."]
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[node name="WinMessage" type="Node2D" parent="."]
 visible = false
+z_index = 10
+
+[node name="Label" type="Label" parent="WinMessage"]
 margin_left = 289.0
 margin_top = 200.0
 margin_right = 345.0
@@ -38,8 +45,15 @@ margin_bottom = 214.0
 rect_scale = Vector2( 10, 10 )
 text = "You Win!"
 
-[node name="Timer" type="Timer" parent="."]
-wait_time = 5.0
-autostart = true
+[node name="StartMessage" type="Node2D" parent="."]
+z_index = 10
+
+[node name="Label" type="Label" parent="StartMessage"]
+margin_left = 289.0
+margin_top = 200.0
+margin_right = 345.0
+margin_bottom = 214.0
+rect_scale = Vector2( 5, 5 )
+text = "Click to Spread!"
 
 [connection signal="timeout" from="Timer" to="Character" method="_on_Timer_timeout"]
