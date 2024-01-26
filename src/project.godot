@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Position2D",
+"class": "Creeper",
+"language": "GDScript",
+"path": "res://creeper.gd"
+} ]
+_global_script_class_icons={
+"Creeper": ""
+}
+
 [application]
 
 config/name="Grid-based Pathfinding with Astar"

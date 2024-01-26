@@ -33,6 +33,10 @@ func _ready():
 	print_debug("Tilemap script ready.")
 	var walkable_cells_list = astar_add_walkable_cells(obstacles)
 	astar_connect_walkable_cells_diagonal(walkable_cells_list)
+	
+func _process(delta):
+	if (get_used_cells_by_id(type.GROUND).size() == 0):
+		get_parent().get_node("WinMessage").visible = true
 
 # Loops through all cells within the map's bounds and
 # adds all points to the astar_node, except the obstacles.
@@ -191,3 +195,14 @@ func infect_neighbors(point:Vector2):
 		var is_creep = get_cellv(neighbor) == type.CREEP
 		if is_valid and not is_creep:
 			set_cellv(neighbor, type.CREEP)
+
+func get_random_spawn():
+	var ground_tiles = get_used_cells_by_id(type.GROUND)
+	var creep_tiles = get_used_cells_by_id(type.CREEP)
+	var spawnable_tiles = []
+	spawnable_tiles.append_array(ground_tiles)
+	spawnable_tiles.append_array(creep_tiles)
+	var random_index = rand_range(0, spawnable_tiles.size())
+	var random_tile = spawnable_tiles[random_index]
+	var random_tile_world_positon = _get_tile_center(random_tile)
+	return random_tile_world_positon
