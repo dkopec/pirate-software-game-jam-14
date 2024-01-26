@@ -1,5 +1,7 @@
 extends Position2D
 
+class_name Creeper
+
 onready var _time_start = OS.get_unix_time()
 var infection_interval = 10
 

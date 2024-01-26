@@ -29,6 +29,8 @@ The game is developed and release to be multiplatform, currently windows desktop
 ### Development Software
 
 - Programming: [Godot Engine v3.5.2](https://godotengine.org/download/3.x/windows/)
+- Art: [Gimp](https://www.gimp.org/)
+- Audio: [LMMS](https://lmms.io/)
 
 ### Genre
 
@@ -66,7 +68,6 @@ Required to place creep.
 
 N/A
 
-
 ## Art
 
 ### Theme Interpretation
@@ -99,3 +100,15 @@ Mouse/touchscreen
 
 ### Development Timeline
 
+Didn't make a proper one to my own detriment, here is a general overview of home the development went:
+
+https://github.com/dkopec/pirate-software-game-jam-14/releases?page=3
+
+2021-01-12 - Setup Github Repo/CICD/Itchio publishing, godot project skeleton, main menu.
+2021-01-13 - Added Spreading Mechanic, worked on figuring out how to make the game enaging
+2021-01-15 - Added some more UI elements
+2021-01-22 - Decided to refactor so that I can actually move the character with Astar navigation.
+2021-01-23 -
+2021-01-24 -
+2021-01-25 - wrote bulk of the Design Doc
+2021-01-26 - Last minute crunch, implemented win condition, target assignment, powerup
